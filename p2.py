@@ -39,11 +39,6 @@ C0 C3
 0 0 3 3
 '''
 
-## missionary and cannibal initial state is that they are all on west side
-initial = [[3, 3], [0, 0]]
-## missionary and cannibal goal state is that they are all on east side
-goal = [[0 ,0],[3, 3]]
-
 ## Heurisitcs
 
 # Manhattan Distance: - For this problem, Manhattan distance is defined as
@@ -52,68 +47,12 @@ goal = [[0 ,0],[3, 3]]
 # the inital manhattan distance is 6. Since we start off with 3 Missionary and 3 Cannibals out of place
 
 # The Heuristics for Missionary and Cannibal problem
-import sys
-from collections import deque
-import math
-import heapq
+
+from utils import *
+from search import *
+
 
 # problems will be solved with various search algorithms
-class Problem(object):
-	def __init__(self, initial, goal=None):
-		self.initial = initial
-		self.goal = goal
-	def actions(self, state):
-		raise NotImplementedError
-	def result(self, state, action):
-		raise NotImplementedError
-	# check if state is a goal
-	def goal_test(self, state):
-		if isinstance(self.goal, list):
-			return is_in(state, self.goal)
-		else:
-			return state == self.goal
-	#cost increase for every step in path
-	def path_cost(self, c, state1, action, state2):
-		return c + 1
-	def value(self, state):
-		raise NotImplementedError
-class Node:
-	def __init__(self, state, parent=None, action=None, path_cost=0):
-		# Create a search tree node, made from parent from an action
-		self.state = state
-		self.parent = parent
-		self.action = action
-		self.path_cost = path_cost
-		self.depth = 0
-		if parent:
-			self.depth = parent.depth + 1
-	def __repr__(self):
-		return "<Node {}>".format(self.state)
-	def __lt__(self, node):
-		return self.state < node.state
-	def expand(self, problem):
-		# list the nodes reachable in one step from this node
-		return [self.child_node(problem, action)
-			for action in problem.actions(self.state)]
-	def child_node(self, problem, action):
-		next_state = problem.result(self.state, action)
-		next_node = Node(next_state, self, action, problem.path_cost(self.path_cost, self.state, action, next_state))
-		return next_node
-	def solution(self):
-		# return the sequence of actions to go from the root to this node
-		return [node.action for node in self.path()[1:]]
-	def path(self):
-		# the path of a node
-		node, path_back = self, []
-		while node:
-			path_back.append(node)
-			node = node.parent
-		return list(reversed(path_back))
-	def __eq__(self, other):
-		return isinstance(other, Node) and self.state == other.state
-	def __hash__(self):
-		return hash(self.state)
-
 class MissionaryCannibal(Problem):
 	def __init__(self, initial, goal):
 		Problem.__init__(self, initial, goal)
@@ -211,6 +150,7 @@ class MissionaryCannibal(Problem):
 				state[1]=state[1]+1
 			else:
 				state[1]=state[1]+2
+		state=tuple(state)
 		self.state=state
 		return self.state
 
@@ -224,8 +164,8 @@ class MissionaryCannibal(Problem):
 
 def main():
 	print("hi")
-	initial = [3,3,1]
-	goal = [0,0,0]
+	initial = tuple([3,3,1])
+	goal = tuple([0,0,0])
 	
 	mcproblem = MissionaryCannibal(initial, goal)
 	#uniform cost
@@ -233,7 +173,7 @@ def main():
 	#greedy best first search
 	#A* search
 	#recursive best first search
-	s=uniform_cost_search(mcproblem)
-	
+	s= uniform_cost_search(mcproblem)
+	print(s.path())
 	
 main()
