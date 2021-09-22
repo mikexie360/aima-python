@@ -1,5 +1,6 @@
-Hello!
-My name is Mike Xie.
+Mike Xie
+mxx170002@utdallas.edu
+HW1
 This is my submission for Homework 1
 
 This README.txt file will
@@ -16,9 +17,9 @@ cd into the aima code and  install numpy in your terminal
     pip3 install numpy --user
 
 ------------------------------------------------
-p1.py is for kitty world
-p2.py is for missionary and cannibal problem
-p3.py is for roadmap problem
+p1.py is for kitty world with ability to control kitty
+p2.py is for missionary and cannibal problem with various search aglorithms
+p3.py is for roadmap problem with RBFS and Astar
 
 --------------------------------------------------
 All python files are using python 3.
@@ -33,3 +34,7 @@ you will then see the solution path for the missionary problem
 to run p3.py run
     python3 p3.py
 you will then see the solution path for roadproblem with RBFS and Astar
+
+------------------------------------------------------
+All python runs on AIMA code, but some modifcations may have been made to into
+p1.py kitty program may not have been needed.
