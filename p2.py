@@ -57,7 +57,8 @@ class MissionaryCannibal(Problem):
 	def __init__(self, initial, goal):
 		Problem.__init__(self, initial, goal)
 		self.state = initial
-	def action(self, state):
+		
+	def actions(self, state):
 		# list of possible actions
 		# boat is on Right side
 		if(state[2]==1):
@@ -127,32 +128,47 @@ class MissionaryCannibal(Problem):
 			state[2]=0
 			if action=="M":
 				state[0]=state[0]-1
+				state[3]=state[3]+1
 			elif action=="MM":
 				state[0]=state[0]-2
+				state[3]=state[3]+2
 			elif action=="MC":
 				state[0]=state[0]-1
+				state[3]=state[3]+1
 				state[1]=state[1]-1
+				state[4]=state[4]+1
 			elif action=="C":
 				state[1]=state[1]-1
+				state[4]=state[4]+1
 			else:
 				state[1]=state[1]-2
+				state[4]=state[4]+2
 		# boat on left side
 		else:
 			state[2]=1
 			if action=="M":
 				state[0]=state[0]+1
+				state[3]=state[3]-1
 			elif action=="MM":
 				state[0]=state[0]+2
+				state[3]=state[3]-2
 			elif action=="MC":
 				state[0]=state[0]+1
+				state[3]=state[3]-1
 				state[1]=state[1]+1
+				state[4]=state[4]-1
 			elif action=="C":
 				state[1]=state[1]+1
+				state[4]=state[4]-1
 			else:
 				state[1]=state[1]+2
+				state[4]=state[4]-2
 		state=tuple(state)
 		self.state=state
 		return self.state
+
+	def h(self, node):
+		return sum(s != g for (s, g) in zip(node.state, self.goal))
 
 	# Check if current state is goal or not
 	def goalTest(self, state):
@@ -161,19 +177,61 @@ class MissionaryCannibal(Problem):
 		else:
 			return False
 
+def greedy_best_first_search(problem, h=None):
+    """Greedy Best-first graph search is an informative searching algorithm with f(n) = h(n).
+    You need to specify the h function when you call best_first_search, or
+    else in your Problem subclass."""
+    h = memoize(h or problem.h, 'h')
+    node = best_first_graph_search(problem, lambda n: h(n))
+    return(node)
 
 def main():
 	print("hi")
-	initial = tuple([3,3,1])
-	goal = tuple([0,0,0])
+	initial = [3,3,1,0,0]
+	initial = tuple(initial)
+	goal = [0,0,0,3,3]
+	goal = tuple(goal)
 	
-	mcproblem = MissionaryCannibal(initial, goal)
+	mc = MissionaryCannibal(initial, goal)
 	#uniform cost
+	uniformC = uniform_cost_search(mc)
+	print("\nUniform-Cost Search")
+	print("path size ",len(uniformC.path()))
+	print("solution")
+	print(uniformC.solution())
+	for i in uniformC.path():
+		print(i)
 	#iterative deepening
+	iterdeep = iterative_deepening_search(mc)
+	print("\nIterative Deepening Search")
+	print("path size ",len(iterdeep.path()))
+	print("solution")
+	print(iterdeep.solution())
+	for i in iterdeep.path():
+		print(i)
 	#greedy best first search
+	greedyBFS = greedy_best_first_search(mc)
+	print("\nGreedy Best-First Search")
+	print("path size ",len(greedyBFS.path()))
+	print("solution")
+	print(greedyBFS.solution())
+	for i in greedyBFS.path():
+		print(i)
 	#A* search
+	Astar = astar_search(mc)
+	print("\nA* Search")
+	print("path size ",len(Astar.path()))
+	print("solution")
+	print(Astar.solution())
+	for i in Astar.path():
+		print(i)
 	#recursive best first search
-	s= uniform_cost_search(mcproblem)
-	print(s.path())
+	rbfs = recursive_best_first_search(mc)
+	print("\nRBFS Search")
+	print("path size ",len(rbfs.path()))
+	print("solution")
+	print(rbfs.solution())
+	for i in rbfs.path():
+		print(i)
 	
 main()

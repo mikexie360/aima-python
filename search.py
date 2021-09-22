@@ -1056,7 +1056,8 @@ class Graph:
         s2 = set([k2 for v in self.graph_dict.values() for k2, v2 in v.items()])
         nodes = s1.union(s2)
         return list(nodes)
-
+    def h(self, node):
+        return 0
 
 def UndirectedGraph(graph_dict=None):
     """Build a Graph where every edge (including future ones) goes both ways."""

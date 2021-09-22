@@ -15,130 +15,84 @@
 
 # find the same solution manually for each node visited for each of the five values
 
-
+from utils import *
+from search import *
+from collections import deque
 
 import math
-
-# problems will be solved with various search algorithms
-class Problem(object):
-	def __init__(self, initial, goal=None):
-		self.initial = initial
-		self.goal = goal
-	def actions(self, state):
-		raise NotImplementedError
-	def result(self, state, action):
-		raise NotImplementedError
-	# check if state is a goal
-	def goal_test(self, state):
-		if isinstance(self.goal, list):
-			return is_in(state, self.goal)
-		else:
-			return state == self.goal
-	#cost increase for every step in path
-	def path_cost(self, c, state1, action, state2):
-		return c + 1
-	def value(self, state):
-		raise NotImplementedError
-class Node:
-	def __init__(self, state, parent=None, action=None, path_cost=0):
-		# Create a search tree node, made from parent from an action
-		self.state = state
-		self.parent = parent
-		self.action = action
-		self.path_cost = path_cost
-		self.depth = 0
-		if parent:
-			self.depth = parent.depth + 1
-	def __repr__(self):
-		return "<Node {}>".format(self.state)
-	def __lt__(self, node):
-		return self.state < node.state
-	def expand(self, problem):
-		# list the nodes reachable in one step from this node
-		return [self.child_node(problem, action)
-			for action in problem.actions(self.state)]
-	def child_node(self, problem, action):
-		next_state = problem.result(self.state, action)
-		next_node = Node(next_state, self, action, problem.path_cost(self.path_cost, self.state, action, next_state))
-		return next_node
-	def solution(self):
-		# return the sequence of actions to go from the root to this node
-		return [node.action for node in self.path()[1:]]
-	def path(self):
-		# the path of a node
-		node, path_back = self, []
-		while node:
-			path_back.append(node)
-			node = node.parent
-		return list(reversed(path_back))
-	def __eq__(self, other):
-		return isinstance(other, Node) and self.state == other.state
-	def __hash__(self):
-		return hash(self.state)
-class GraphProblem(Problem):
-	def __init__(self, initial, goal, graph):
-		Problem.__init__(self,initial, goal)
-		self.graph = graph
-	def actions(self, A):
-		return list(self.graph.get(A).keys())
-	def result(self, state, action):
-		return action
-	def path_cost(self, cost_so_far, A, action, B):
-		return cost_so_far + (self.graph.get(A,B) or infinity)
-	def find_min_edge(self):
-		m = infinity
-		for d in self.graph.graph_dict.values():
-			local_min = min(d.values())
-			m = min(m, local_min)
-		return m
-	def h(self, node):
-		locs = getattr(self.graph, 'locations', None)
-		if locs:
-			if type(node) is str:
-				return int(distance(locs[node], locs[self.goal]))
-			return int(distance(locs[node.state], locs[self.goal]))
-		else:
-			return infinity
-
-class Graph:
-	def __init__(self, graph_dict=None, directed=True):
-		self.graph_dict = graph_dict or {}
-		self.directed = directed
-		if not directed:
-			self.make_undirected()
-	def make_undirected(self):
-		for a in list(self.graph_dict.keys()):
-			for (b, dist) in self.graph_dict[a].items():
-				self.connect1(b, a, dist)
-	def connect(self, A, B, distance=1):
-		self.connect(A, B, distance)
-		if not self.directed:
-			self.connect(B, A, distance)
-	def connect1(self, A, B, distance):
-		self.graph_dict.setdefault(A, {})[B] = distance
-	def get(self, a, b=None):
-		links = self.graph_dict.setdefaults(a, {})
-		if b is None:
-			return links
-		else:
-			return links.get(b)
-	def nodes(self):
-		s1 = set([k for k in self.graph_dict.keys()])
-		s2 = set([k2 for v in self.graph_dict.values() for k2, v2 in v.items()])
-		nodes = s1.union(s2)
-		return list(nodes)
-
-
-def UndirectedGraph(graph_dict=None):
-	return Graph(graph_dict=graph_dict, directed=False)
-
 def recursive_best_first_search(problem, h=None):
+	"""[Figure 3.26]"""
 	h = memoize(h or problem.h, 'h')
 
 	def RBFS(problem, node, flimit):
+		if problem.goal_test(node.state):
+			return node, 0  # (The second value is immaterial)
+		successors = node.expand(problem)
+		if len(successors) == 0:
+			return None, np.inf
+		for s in successors:
+			s.f = max(s.path_cost + h(s), node.f)
+		while True:
+			# Order by lowest f value
+			successors.sort(key=lambda x: x.f)
+			best = successors[0]
+			if best.f > flimit:
+				return None, best.f
+			if len(successors) > 1:
+				alternative = successors[1].f
+			else:
+				alternative = np.inf
+			print("\n")
+			print("f limit = ", flimit)
+			print("best ", best)
+			print("alternative", alternative)
+			print("current", node.state)
+			print("next city", best.state)
+			print("\n")
+			result, best.f = RBFS(problem, best, min(flimit, alternative))
+			if result is not None:
+				return result, best.f
 
+	node = Node(problem.initial)
+	node.f = h(node)
+	result, bestf = RBFS(problem, node, np.inf)
+	return result
+def astar_search(problem, h=None, display=False):
+    """A* search is best-first graph search with f(n) = g(n)+h(n).
+    You need to specify the h function when you call astar_search, or
+    else in your Problem subclass."""
+    h = memoize(h or problem.h, 'h')
+    return best_first_graph_search(problem, lambda n: n.path_cost + h(n), display)
 
+def best_first_graph_search(problem, f, display=False):
+	f = memoize(f, 'f')
+	node = Node(problem.initial)
+	frontier = PriorityQueue('min', f)
+	frontier.append(node)
+	tempFrontier = [node]
+	explored = set()
+	while frontier:
+		node = frontier.pop()
+		tempFrontier.pop()
+		if problem.goal_test(node.state):
+			if display:
+				print(len(explored), "paths have been expanded and", len(frontier), "paths remain in the frontier")
+			return node
+		explored.add(node.state)
+		for child in node.expand(problem):
+			if child.state not in explored and child not in frontier:
+				frontier.append(child)
+				tempFrontier.append(child)
+			elif child in frontier:
+				if f(child) < frontier[child]:
+					del frontier[child]
+					del tempFrontier[child]
+					frontier.append(child)
+					tempFrontier.append(child)
+		print("[Current node:",node,"; Evaluation function=",node.f,";\nExplored Cities=",explored,";Frontier:",tempFrontier,";")
+	return None
 
+# problems will be solved with various search algorithms
 road_map = UndirectedGraph(dict(
 	LosAngeles=dict(SanFrancisco=383, Austin=1377, Bakersville=153),
 	SanFrancisco=dict(Bakersville=283, Seattle=807),
@@ -152,8 +106,15 @@ road_map = UndirectedGraph(dict(
 
 
 def main():
-	print("hi")
-	road_problem = GraphProblem('Dallas','Seattle', road_map)
-	print(nodes
+	# heuristic
+	road_problem = GraphProblem('Seattle','Dallas', road_map)
 
+	# RBFS
+	print("RBFS")
+	print("Solution")
+	print(recursive_best_first_search(road_problem).solution())
+	# A*
+	print("\n\nAstar\n")
+	print("List the contents of the frontier, explored list during search")
+	print("\nSolution Path for Astar\n",astar_search(road_problem).solution())
 main()
