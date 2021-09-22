@@ -13,12 +13,12 @@
 stateSpaceDescription = '''
 The state space is all possible states in the system
 For position of kitty, there are 6 possible states
-For battery of kitty, there are 6 possible states
+For battery of kitty, there are 101 possible states
 For happiness of kitty, it is arbitrary. we can say that kitty happyiness states can be [very happy, happy, sad, curious], so kitty's happiness possible states is 4 states
 
 kitty gains happiness when kitty purs and meows.
 kitty loses happiness when kitty bumps into a wall.
-so the upperbound for the entire state space for kitty is 144 states.
+so the upperbound for the entire state space for kitty is 2,424 states.
 '''
 
 class Kitty():
