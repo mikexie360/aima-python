@@ -44,7 +44,7 @@ def recursive_best_first_search(problem, h=None):
 				alternative = np.inf
 			print("\n")
 			print("f limit = ", flimit)
-			print("best ", best)
+			print("best ", best.f)
 			print("alternative", alternative)
 			print("current", node.state)
 			print("next city", best.state)
@@ -69,11 +69,9 @@ def best_first_graph_search(problem, f, display=False):
 	node = Node(problem.initial)
 	frontier = PriorityQueue('min', f)
 	frontier.append(node)
-	tempFrontier = [node]
 	explored = set()
 	while frontier:
 		node = frontier.pop()
-		tempFrontier.pop()
 		if problem.goal_test(node.state):
 			if display:
 				print(len(explored), "paths have been expanded and", len(frontier), "paths remain in the frontier")
@@ -82,14 +80,11 @@ def best_first_graph_search(problem, f, display=False):
 		for child in node.expand(problem):
 			if child.state not in explored and child not in frontier:
 				frontier.append(child)
-				tempFrontier.append(child)
 			elif child in frontier:
 				if f(child) < frontier[child]:
 					del frontier[child]
-					del tempFrontier[child]
 					frontier.append(child)
-					tempFrontier.append(child)
-		print("[Current node:",node,"; Evaluation function=",node.f,";\nExplored Cities=",explored,";Frontier:",tempFrontier,";")
+		print("[Current node:",node,"; Evaluation function=",node.f,";\nExplored Cities=",explored,";Frontier:",frontier,";")
 	return None
 
 # problems will be solved with various search algorithms
@@ -104,6 +99,12 @@ road_map = UndirectedGraph(dict(
 	Dallas=dict(NewYork=1548),
 	Charlotte=dict(NewYork=634)))
 
+road_map.locations = dict(
+	Dallas =(0,0), Austin=(182,0), Charlotte=(929,0), 
+	SanFrancisco=(1230,0), LosAngeles=(1100,0),NewYork=(1368,0),
+	Chicago=(800,0),Seattle=(1670,0),SantaFe=(560,0),
+	Bakersville=(1282,0),Boston=(1551,0)
+)
 
 def main():
 	# heuristic

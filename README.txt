@@ -38,3 +38,5 @@ you will then see the solution path for roadproblem with RBFS and Astar
 ------------------------------------------------------
 All python runs on AIMA code, but some modifcations may have been made to into
 p1.py kitty program may not have been needed.
+
+For p3.py , I am assuming the direct flight distance is a good heuristic.
