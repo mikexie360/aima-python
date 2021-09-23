@@ -186,7 +186,6 @@ def greedy_best_first_search(problem, h=None):
     return(node)
 
 def main():
-	print("hi")
 	initial = [3,3,1,0,0]
 	initial = tuple(initial)
 	goal = [0,0,0,3,3]
