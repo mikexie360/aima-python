@@ -97,7 +97,6 @@ def main():
     ['Seattle', 1670]]
     """
     # now flight path is in order
-    print(flightPath, "\n")
     
     roadPath=[
         # Dallas, Austin, Santa Fe, Chicago, Charlotte, Los Angeles, San Francisco, Bakersville, New York, Boston, Seattle
